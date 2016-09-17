@@ -8,7 +8,7 @@ const UserInfo = (props) => {
                  height="42" width="42"
                  className="img-thumbnail"
                  style={{float: "left"}}/>
-            <h5>&nbsp;{props.username}  has {props.repoCount} <strong>public</strong> repositories</h5>
+            <h5>&nbsp;{props.username}  has  <strong>{props.repoCount}</strong> repositories</h5>
         </div>
     )
 };

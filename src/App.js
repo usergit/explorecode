@@ -26,28 +26,59 @@ class App extends React.Component {
         this.searchUser            = this.searchUser.bind(this);
         this.filterRepoByStarCount = this.filterRepoByStarCount.bind(this);
         this.saveUsername          = this.saveUsername.bind(this);
-        this.handleEnterKey = this.handleEnterKey.bind(this);
+        this.handleKeyDown         = this.handleKeyDown.bind(this);
+        this.commonFollowers       = this.commonFollowers.bind(this);
+
+        this.state = {
+            multipleUsername    : false,
+        }
+    }
+
+
+    setUsers() {
+        if (this.username) {
+            let removedSpaces = this.username.replace(/ /g, "");
+            let usernameArr   = removedSpaces.split(",");
+
+            if (usernameArr.length > 1) { // if  multiple users on input field, store usernames list
+                this.setState({multipleUsername: true});
+                this.multipleUsernameList = usernameArr;
+            } else { // 0 or 1 users on input field, don't store userenames list, empty stored multiple usernames list
+                this.setState({multipleUsername: false});
+                this.multipleUsernameList = null;
+            }
+        }
+    }
+
+    commonFollowers() {
+        newRepoStore.getCommonFollowers(this.multipleUsernameList)
     }
 
     // search user
     searchUser() {
-        newRepoStore.fetch(this.username);
+        newRepoStore.fetchRepo(this.username);
     }
 
-    handleEnterKey(event){
+    handleKeyDown(event) {
+        this.setUsers(); // get all users
+
         if (!event) event = window.event;
         var keyCode = event.keyCode || event.which;
-        if (keyCode == '13'){
-            newRepoStore.fetch(this.username);
+
+        // if enter is pressed and input field has only one username
+        if (keyCode == '13' && !this.state.multipleUsername) {
+            newRepoStore.fetchRepo(this.username);
             return false;
+        } else if (keyCode == '13' && this.state.multipleUsername) { // if enter is pressed and input field has multiple usernames
+            this.commonFollowers()
         }
     }
 
     filterRepoByStarCount(event) {
         let value = event.target.value;
-        if (value === "") {
+        if (value === "") { // if empty value is passed make the StarCount 0
             value = 0;
-        } // if empty value is passed make the StarCount 0
+        }
 
         newRepoStore.setStarCount(parseInt(value));
     }
@@ -60,16 +91,21 @@ class App extends React.Component {
         return (
             <div className="container">
                 <DevTools/>
+
                 <div className="row">
-                    <div className="col-md-8 col-md-offset-2" >
+                    <div className="col-md-8 col-md-offset-2">
                         <h4>Code Explorer</h4>
                         <div className="input-group">
                             <SearchField className="form-control"
-                                         placeholder={"Enter Github Username e.g. john"}
+                                         placeholder={"Type github username e.g. john or john, david to compare followers"}
                                          handleChange={this.saveUsername}
-                                        handleEnterKey={this.handleEnterKey}/>
+                                         handleKeyDown={this.handleKeyDown}/>
                             <span className="input-group-btn">
-                            <button className="btn btn-primary" type="button" onClick={this.searchUser}>Search</button>
+                                {this.state.multipleUsername ? (<button className="btn btn-success" type="button"
+                                                                        onClick={this.commonFollowers}>Common
+                                    Followers</button>) : <button className="btn btn-primary" type="button"
+                                                                  onClick={this.searchUser}>Search</button>
+                                }
                         </span>
                         </div>
                     </div>
@@ -94,13 +130,19 @@ class App extends React.Component {
                     </div>
                 </div>
 
+
+
+                <div className="row">
+                    <div className="col-md-8 col-md-offset-2">
+                        <div className="well well-sm"><h6><strong>Common Followers: </strong>{newRepoStore.commonFollowers}</h6></div>
+                    </div>
+                </div>
+
                 <div className="row">
                     <div className="col-md-8 col-md-offset-2">
                         <UserRepoList store={newRepoStore}/>
                     </div>
                 </div>
-
-                {/*<SharedFollowers/>*/}
             </div>
         )
     }

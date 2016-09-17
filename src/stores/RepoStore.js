@@ -6,15 +6,15 @@ useStrict(true); // explicit state modification
 
 class RepoStore {
     constructor() {
-        const DEFAULT_USER = "usergit";
-        action(this.fetch(DEFAULT_USER));
+        const DEFAULT_USER = "john";
+        action(this.fetchRepo(DEFAULT_USER));
     }
 
     // data that is fetched from github will be stored here
     @observable userInfo = {
         avatar  : null,
         username: null,
-        repos   : [] // this would store the array of repos of the user
+        repos   : [] // this would store the array of repos of the newly entered user
     };
 
     @observable starCount = 0; // the user filter term will be stored here
@@ -23,7 +23,7 @@ class RepoStore {
         return this.userInfo.repos.filter(repo => repo.stargazers_count >= this.starCount)
     }
 
-    // used to compute the relative size of the indivdual bar charts
+    // used to compute the relative size of the individual bar charts
     // repo.stargazers_count * 100)/props.store.largestStarCount
     @computed get largestStarCount(){
         function sortNumbersDescending(a, b) {
@@ -49,9 +49,10 @@ class RepoStore {
     }
 
     @action("fetch github repos")
-    fetch(username) {
+    fetchRepo(username) {
         this.loadStatus = "loading...";
 
+        // get the first 100 repos of a user from github and populate the userInfo object
         axios.get(`https://api.github.com/users/${username}/repos?per_page=100`)
             .then(action(response => {
                 this.userInfo.avatar   = response.data[0].owner.avatar_url;
@@ -73,6 +74,69 @@ class RepoStore {
                     this.loadStatus = `Error ${error.message}`
                 }
             }));
+    }
+
+    @observable followers = null;
+    @computed get commonFollowers(){
+        if (this.followers != null && this.followers.length > 0){
+
+            const firstUserFollowers = this.followers[0].data;
+            const secondUserFollowers = this.followers[1].data;
+
+            const firstUserFollowersArr = firstUserFollowers.map(follower => {
+                return follower.login
+            });
+
+            const secondUserFollowersArr = secondUserFollowers.map(follower => {
+                return follower.login
+            });
+
+            console.log(firstUserFollowersArr);
+            console.log(secondUserFollowersArr);
+
+            // this gets us the intersection of firstUserFollowersArr and secondUserFollowersArr
+            // meaning the shared followers between two users
+            const intersection = firstUserFollowersArr.filter(function(username) {
+                return secondUserFollowersArr.indexOf(username) != -1;
+            });
+
+
+            return intersection.join(", ")
+        }
+    }
+
+    @action("get common followers")
+    getCommonFollowers(usernameList){
+        function getUserAccount(username) {
+            return axios.get(`https://api.github.com/users/${username}/followers?per_page=100`);
+        }
+
+        axios.all([getUserAccount(usernameList[0]), getUserAccount(usernameList[1])])
+            .then(
+                action(
+                axios.spread((firstUserFollowers, secondUserFollowers) => {
+                console.log("firstFollowers: ", firstUserFollowers.data);
+                console.log("secondFollowers: ", secondUserFollowers.data);
+
+                // after receiving a response from both requests, set
+               this.followers = [firstUserFollowers, secondUserFollowers];
+
+            }))).catch(action(error => {
+                if (error.response) {
+                    // The request was made, but the server responded with a status code
+                    // that falls out of the range of 2xx
+                    console.log(error.response.data);
+                    console.log(error.response.status);
+                    console.log(error.response.headers);
+                    this.followers = [`${error.response.data.message} ${error.response.status}`] ;
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    console.log('Error', error.message);
+                    this.followers = [`Error ${error.message}`]
+                }
+            })
+
+        );
     }
 
 }
