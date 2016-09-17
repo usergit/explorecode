@@ -1,0 +1,24 @@
+div#masonry {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    height: 100vw;
+    max-height: 800px;
+}
+
+div#masonry img {
+    width: 33.3%;
+    transition: 0.4s;
+    padding: 5px;
+}
+
+/* all the other images */
+div#masonry:hover img {
+    opacity: 0.3;
+}
+
+/* the image being hovered on */
+div#masonry:hover img:hover {
+    opacity: 1;
+}
+ 
