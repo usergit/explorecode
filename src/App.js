@@ -10,6 +10,7 @@ import SearchField from './components/SearchField';
 import UserInfo from './components/UserInfo';
 import UserRepoList from './components/UserRepoList';
 
+
 // create the store
 const newRepoStore = new RepoStore();
 
@@ -61,7 +62,7 @@ class App extends React.Component {
 
                 <UserInfo username={newRepoStore.userInfo.username} avatar={newRepoStore.userInfo.avatar}/>
                 <UserRepoList store={newRepoStore}/>
-                {/*<UserRepoGraph/>*/}
+
                 {/*<SharedFollowers/>*/}
             </div>
         )
