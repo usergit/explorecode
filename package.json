@@ -4,6 +4,7 @@
   "description": "explorecode.org",
   "main": "app.js",
   "scripts": {
+    "start": "node main.js",
     "start-server": "node main.js",
     "start-watch": "pm2 start app.js --watch",
     "start-react": "webpack-dev-server --progress --colors",

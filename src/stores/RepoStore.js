@@ -23,6 +23,22 @@ class RepoStore {
         return this.userInfo.repos.filter(repo => repo.stargazers_count >= this.starCount)
     }
 
+    // used to compute the relative size of the indivdual bar charts
+    // repo.stargazers_count * 100)/props.store.largestStarCount
+    @computed get largestStarCount(){
+        function sortNumbersDescending(a, b) {
+            return b-a;
+        }
+
+        let repoSize = this.userInfo.repos.map(repo => repo.stargazers_count);
+        return repoSize.sort(sortNumbersDescending)[0];
+    }
+
+    // count of user repos
+    @computed get repoCount(){
+        return this.userInfo.repos.map(repo => repo).length;
+    }
+
     //stores the loading status of the repos, has 3 states {null, loading..., errorMessage}
     @observable loadStatus = null;
 
@@ -36,7 +52,7 @@ class RepoStore {
     fetch(username) {
         this.loadStatus = "loading...";
 
-        axios.get(`https://api.github.com/users/${username}/repos`)
+        axios.get(`https://api.github.com/users/${username}/repos?per_page=100`)
             .then(action(response => {
                 this.userInfo.avatar   = response.data[0].owner.avatar_url;
                 this.userInfo.username = response.data[0].owner.login;

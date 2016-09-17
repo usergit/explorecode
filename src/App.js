@@ -26,11 +26,21 @@ class App extends React.Component {
         this.searchUser            = this.searchUser.bind(this);
         this.filterRepoByStarCount = this.filterRepoByStarCount.bind(this);
         this.saveUsername          = this.saveUsername.bind(this);
+        this.handleEnterKey = this.handleEnterKey.bind(this);
     }
 
     // search user
     searchUser() {
         newRepoStore.fetch(this.username);
+    }
+
+    handleEnterKey(event){
+        if (!event) event = window.event;
+        var keyCode = event.keyCode || event.which;
+        if (keyCode == '13'){
+            newRepoStore.fetch(this.username);
+            return false;
+        }
     }
 
     filterRepoByStarCount(event) {
@@ -48,20 +58,47 @@ class App extends React.Component {
 
     render() {
         return (
-            <div>
+            <div className="container">
                 <DevTools/>
-                <p>Github Explorer</p>
-                <SearchField placeholder={"Enter Github Username e.g. john"} handleChange={this.saveUsername}/>
-                <button onClick={this.searchUser}>Search</button>
-                <p>{newRepoStore.loadStatus}</p>
+                <div className="row">
+                    <div className="col-md-8 col-md-offset-2" >
+                        <h4>Code Explorer</h4>
+                        <div className="input-group">
+                            <SearchField className="form-control"
+                                         placeholder={"Enter Github Username e.g. john"}
+                                         handleChange={this.saveUsername}
+                                        handleEnterKey={this.handleEnterKey}/>
+                            <span className="input-group-btn">
+                            <button className="btn btn-primary" type="button" onClick={this.searchUser}>Search</button>
+                        </span>
+                        </div>
+                    </div>
+                    <div className="col-md-2"><h5>{newRepoStore.loadStatus}</h5></div>
+                </div>
 
-                <SearchField type="number"
-                             min={0}
-                             placeholder={"Star Count"}
-                             handleChange={this.filterRepoByStarCount}/>
+                <div className="row">
+                    <div className="col-md-8 col-md-offset-2">
+                        <SearchField type="number"
+                                     min={0}
+                                     placeholder={"Filter By Star Count"}
+                                     handleChange={this.filterRepoByStarCount}
+                        />
+                    </div>
+                </div>
 
-                <UserInfo username={newRepoStore.userInfo.username} avatar={newRepoStore.userInfo.avatar}/>
-                <UserRepoList store={newRepoStore}/>
+                <div className="row">
+                    <div className="col-md-8 col-md-offset-2">
+                        <UserInfo username={newRepoStore.userInfo.username}
+                                  avatar={newRepoStore.userInfo.avatar}
+                                  repoCount={newRepoStore.repoCount}/>
+                    </div>
+                </div>
+
+                <div className="row">
+                    <div className="col-md-8 col-md-offset-2">
+                        <UserRepoList store={newRepoStore}/>
+                    </div>
+                </div>
 
                 {/*<SharedFollowers/>*/}
             </div>
