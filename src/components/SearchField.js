@@ -10,12 +10,12 @@ const SearchField = (props) => {
 };
 
 SearchField.propTypes = {
-    name        : React.PropTypes.string,
-    placeholder : React.PropTypes.string,
-    handleChange: React.PropTypes.func,
+    name         : React.PropTypes.string,
+    placeholder  : React.PropTypes.string,
+    handleChange : React.PropTypes.func,
     handleKeyDown: React.PropTypes.func,
-    type        : React.PropTypes.string,
-    min         : React.PropTypes.number,
+    type         : React.PropTypes.string,
+    min          : React.PropTypes.number,
 };
 
 export default SearchField;

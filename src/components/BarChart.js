@@ -13,4 +13,9 @@ BarChart.propTypes = {
     size: React.PropTypes.string
 };
 
+BarChart.defaultProps = {
+    size: "0%"
+};
+
 export default BarChart
+

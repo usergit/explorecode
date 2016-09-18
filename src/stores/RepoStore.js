@@ -1,5 +1,4 @@
 import {observable, computed, reaction, useStrict, action} from 'mobx';
-import uniqueId from 'lodash/uniqueId';
 import axios from 'axios';
 
 useStrict(true); // explicit state modification
@@ -25,9 +24,9 @@ class RepoStore {
 
     // used to compute the relative size of the individual bar charts
     // repo.stargazers_count * 100)/props.store.largestStarCount
-    @computed get largestStarCount(){
+    @computed get largestStarCount() {
         function sortNumbersDescending(a, b) {
-            return b-a;
+            return b - a;
         }
 
         let repoSize = this.userInfo.repos.map(repo => repo.stargazers_count);
@@ -35,7 +34,7 @@ class RepoStore {
     }
 
     // count of user repos
-    @computed get repoCount(){
+    @computed get repoCount() {
         return this.userInfo.repos.map(repo => repo).length;
     }
 
@@ -58,7 +57,7 @@ class RepoStore {
                 this.userInfo.avatar   = response.data[0].owner.avatar_url;
                 this.userInfo.username = response.data[0].owner.login;
                 this.userInfo.repos    = response.data;
-                this.loadStatus = null; // everything is loaded so turn load status to null
+                this.loadStatus        = null; // everything is loaded so turn load status to null
             }))
             .catch(action(error => {
                 if (error.response) {
@@ -67,7 +66,7 @@ class RepoStore {
                     console.log(error.response.data);
                     console.log(error.response.status);
                     console.log(error.response.headers);
-                    this.loadStatus = `${error.response.data.message} ${error.response.status}` ;
+                    this.loadStatus = `${error.response.data.message} ${error.response.status}`;
                 } else {
                     // Something happened in setting up the request that triggered an Error
                     console.log('Error', error.message);
@@ -77,10 +76,10 @@ class RepoStore {
     }
 
     @observable followers = null;
-    @computed get commonFollowers(){
-        if (this.followers != null && this.followers.length > 0){
 
-            const firstUserFollowers = this.followers[0].data;
+    @computed get commonFollowers() {
+        if (this.followers != null && this.followers.length > 0) {
+            const firstUserFollowers  = this.followers[0].data;
             const secondUserFollowers = this.followers[1].data;
 
             const firstUserFollowersArr = firstUserFollowers.map(follower => {
@@ -91,22 +90,20 @@ class RepoStore {
                 return follower.login
             });
 
-            console.log(firstUserFollowersArr);
-            console.log(secondUserFollowersArr);
-
             // this gets us the intersection of firstUserFollowersArr and secondUserFollowersArr
             // meaning the shared followers between two users
-            const intersection = firstUserFollowersArr.filter(function(username) {
+            const intersection = firstUserFollowersArr.filter( username => {
                 return secondUserFollowersArr.indexOf(username) != -1;
             });
 
-
             return intersection.join(", ")
+        }else{
+            return ""
         }
     }
 
     @action("get common followers")
-    getCommonFollowers(usernameList){
+    getCommonFollowers(usernameList) {
         function getUserAccount(username) {
             return axios.get(`https://api.github.com/users/${username}/followers?per_page=100`);
         }
@@ -114,31 +111,25 @@ class RepoStore {
         axios.all([getUserAccount(usernameList[0]), getUserAccount(usernameList[1])])
             .then(
                 action(
-                axios.spread((firstUserFollowers, secondUserFollowers) => {
-                console.log("firstFollowers: ", firstUserFollowers.data);
-                console.log("secondFollowers: ", secondUserFollowers.data);
-
-                // after receiving a response from both requests, set
-               this.followers = [firstUserFollowers, secondUserFollowers];
-
-            }))).catch(action(error => {
+                    axios.spread((firstUserFollowers, secondUserFollowers) => {
+                        // after receiving response from both requests, set
+                        this.followers = [firstUserFollowers, secondUserFollowers];
+                    }))).catch(action(error => {
                 if (error.response) {
                     // The request was made, but the server responded with a status code
                     // that falls out of the range of 2xx
                     console.log(error.response.data);
                     console.log(error.response.status);
                     console.log(error.response.headers);
-                    this.followers = [`${error.response.data.message} ${error.response.status}`] ;
+                    this.followers = [`${error.response.data.message} ${error.response.status}`];
                 } else {
                     // Something happened in setting up the request that triggered an Error
                     console.log('Error', error.message);
                     this.followers = [`Error ${error.message}`]
                 }
             })
-
         );
     }
-
 }
 
 export default RepoStore;

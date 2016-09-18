@@ -1,10 +1,8 @@
+// simple express server for serving data
 "use strict";
-const express = require('express'),
-      api     = require('./api/apiController');
-
+const express = require('express');
 const app     = express();
 
-app.use('/api', api);
 app.use(express.static('public'));
 
 app.set('port', (process.env.PORT || 3000));

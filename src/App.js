@@ -1,7 +1,7 @@
 import React from 'react'
 
-// mobx import
-import DevTools from 'mobx-react-devtools'
+// mobx and store import
+import DevTools from 'mobx-react-devtools';
 import {observer} from 'mobx-react';
 import RepoStore from './stores/RepoStore';
 
@@ -9,7 +9,6 @@ import RepoStore from './stores/RepoStore';
 import SearchField from './components/SearchField';
 import UserInfo from './components/UserInfo';
 import UserRepoList from './components/UserRepoList';
-
 
 // create the store
 const newRepoStore = new RepoStore();
@@ -30,11 +29,11 @@ class App extends React.Component {
         this.commonFollowers       = this.commonFollowers.bind(this);
 
         this.state = {
-            multipleUsername    : false,
+            multipleUsername: false,
         }
     }
 
-
+    // stores username
     setUsers() {
         if (this.username) {
             let removedSpaces = this.username.replace(/ /g, "");
@@ -50,25 +49,24 @@ class App extends React.Component {
         }
     }
 
+    // show common followers
     commonFollowers() {
+        this.setUsers(); // set all users
         newRepoStore.getCommonFollowers(this.multipleUsernameList)
     }
 
-    // search user
     searchUser() {
-        newRepoStore.fetchRepo(this.username);
+        newRepoStore.fetchRepo(this.username); // show the repo list
     }
 
     handleKeyDown(event) {
-        this.setUsers(); // get all users
-
+        this.setUsers();
         if (!event) event = window.event;
         var keyCode = event.keyCode || event.which;
 
         // if enter is pressed and input field has only one username
         if (keyCode == '13' && !this.state.multipleUsername) {
-            newRepoStore.fetchRepo(this.username);
-            return false;
+            this.searchUser()
         } else if (keyCode == '13' && this.state.multipleUsername) { // if enter is pressed and input field has multiple usernames
             this.commonFollowers()
         }
@@ -90,8 +88,7 @@ class App extends React.Component {
     render() {
         return (
             <div className="container">
-                <DevTools/>
-
+                {/*<DevTools/>*/}
                 <div className="row">
                     <div className="col-md-8 col-md-offset-2">
                         <h4>Code Explorer</h4>
@@ -114,6 +111,13 @@ class App extends React.Component {
 
                 <div className="row">
                     <div className="col-md-8 col-md-offset-2">
+                        <div className="well well-sm"><h6><strong>Common
+                            Followers: </strong>{newRepoStore.commonFollowers}</h6></div>
+                    </div>
+                </div>
+
+                <div className="row">
+                    <div className="col-md-8 col-md-offset-2">
                         <SearchField type="number"
                                      min={0}
                                      placeholder={"Filter By Star Count"}
@@ -127,14 +131,6 @@ class App extends React.Component {
                         <UserInfo username={newRepoStore.userInfo.username}
                                   avatar={newRepoStore.userInfo.avatar}
                                   repoCount={newRepoStore.repoCount}/>
-                    </div>
-                </div>
-
-
-
-                <div className="row">
-                    <div className="col-md-8 col-md-offset-2">
-                        <div className="well well-sm"><h6><strong>Common Followers: </strong>{newRepoStore.commonFollowers}</h6></div>
                     </div>
                 </div>
 
