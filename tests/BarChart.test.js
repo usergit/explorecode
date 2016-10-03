@@ -1,8 +1,8 @@
+import React from 'react';
+import {createRenderer} from 'react-addons-test-utils';
 import tape from 'tape';
 import addAssertions from 'extend-tape';
 import jsxEquals from 'tape-jsx-equals';
-import React from 'react';
-import {createRenderer} from 'react-addons-test-utils';
 
 import BarChart from '../src/components/BarChart'; //import component
 
